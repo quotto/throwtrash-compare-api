@@ -11,6 +11,7 @@ phases:
       - python -m unittest test.test
   build:
     commands:
+      - chmod +x ./mecab-service/local/libexec/mecab/mecab-dict-index'
       - ./mecab-service/local/libexec/mecab/mecab-dict-index -d ./mecab-service/local/lib/mecab/dic/ipadic -u user.dic -f utf-8 -t utf-8 ./user.csv
 artifacts:
   files:
