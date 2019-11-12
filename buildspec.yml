@@ -18,7 +18,7 @@ phases:
 artifacts:
   files:
     - main.py
-    - 'package/*'
-    - 'mecab-service/*'
+    - 'package/**/*'
+    - 'mecab-service/**/*'
   name: function.zip
   discard-paths: no
