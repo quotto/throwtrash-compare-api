@@ -3,9 +3,9 @@
 ;
 ; $Id: mecabrc.in,v 1.3 2006/05/29 15:36:08 taku-ku Exp $;
 ;
-dicdir =  /home/ec2-user/mecab-service/local/lib/mecab/dic/ipadic
+dicdir =  /var/task/mecab-service/local/lib/mecab/dic/ipadic
 
-; userdic = /home/foo/bar/user.dic
+; userdic = /var/task/mecab-service/local/lib/mecab/dic/ipadic/user.dic
 
 ; output-format-type = wakati
 ; input-buffer-size = 8192

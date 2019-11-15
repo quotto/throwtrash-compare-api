@@ -14,7 +14,7 @@ phases:
       - chmod +x ./mecab-service/local/libexec/mecab/mecab-dict-index
       - export PATH=${PWD}/mecab-service/local/bin:$PATH
       - export LD_LIBRARY_PATH=${PWD}/mecab-service/local/lib:$LD_LIBRARY_PATH
-      - ./mecab-service/local/libexec/mecab/mecab-dict-index -d ./mecab-service/local/lib/mecab/dic/ipadic -u user.dic -f utf-8 -t utf-8 ./user.csv
+      - ./mecab-service/local/libexec/mecab/mecab-dict-index -d ./mecab-service/local/lib/mecab/dic/ipadic -u ./mecab-service/local/lib/mecab/dic/ipadic/user.dic -f utf-8 -t utf-8 ./user.csv
 artifacts:
   files:
     - main.py
