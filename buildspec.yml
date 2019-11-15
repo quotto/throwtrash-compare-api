@@ -6,15 +6,15 @@ phases:
       python: 3.7
     commands:
       - pip install -r requirements.txt -t ./package
-  pre_build:
-    commands:
-      - python -m unittest test.test
   build:
     commands:
       - chmod +x ./mecab-service/local/libexec/mecab/mecab-dict-index
       - export PATH=${PWD}/mecab-service/local/bin:$PATH
       - export LD_LIBRARY_PATH=${PWD}/mecab-service/local/lib:$LD_LIBRARY_PATH
       - ./mecab-service/local/libexec/mecab/mecab-dict-index -d ./mecab-service/local/lib/mecab/dic/ipadic -u ./mecab-service/local/lib/mecab/dic/ipadic/user.dic -f utf-8 -t utf-8 ./user.csv
+  test:
+    commands:
+      - python -m unittest test.test
 artifacts:
   files:
     - main.py
