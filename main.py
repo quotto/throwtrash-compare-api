@@ -6,7 +6,7 @@ import MeCab
 
 def handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
-    mecab = MeCab.Tagger('-O chasen -d mecab-service/local/lib/mecab/dic/ipadic')
+    mecab = MeCab.Tagger('-O chasen -d mecab-service/local/lib/mecab/dic/ipadic -u mecab-service/local/lib/mecab/dic/ipadic/user.dic')
     wordlist = mecab.parse(event['queryStringParameters']['text']).split('\n')
     result = []
     for word in wordlist[:len(wordlist)-2]:

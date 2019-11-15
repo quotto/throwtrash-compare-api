@@ -25,5 +25,10 @@ class TestMain(unittest.TestCase):
         self.assertEqual(response_body[1]['type'], '助詞')
         self.assertEqual(response_body[2]['type'], '動詞')
 
+    def test_user_dic(self):
+        result = handler({'queryStringParameters': {'text': '資源ごみ'}},{})
+        response_body = json.loads(result['body'])
+        self.assertEqual(len(response_body),1)
+
 if __name__ == '__main__':
     unittest.main()

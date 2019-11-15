@@ -5,7 +5,7 @@
 ;
 dicdir =  /var/task/mecab-service/local/lib/mecab/dic/ipadic
 
-; userdic = /var/task/mecab-service/local/lib/mecab/dic/ipadic/user.dic
+userdic = /var/task/mecab-service/local/lib/mecab/dic/ipadic/user.dic
 
 ; output-format-type = wakati
 ; input-buffer-size = 8192
