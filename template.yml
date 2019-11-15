@@ -1,13 +1,20 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-Description: The AWS CloudFormation template for BSE Workflow
+Description: The AWS CloudFormation template for MecabApi Lambuda Function
+Parameters:
+  BucketName:
+    Type: String
+  ObjectKey:
+    Type: String
 Resources:
   MecabApiFunction:
     Type: 'AWS::Lambda::Function'
     Properties:
       Code: 
-        S3Bucket: code-build-output-mecabapi
-        S3Key: MecabApi.zip
+        S3Bucket: 
+          Ref: BucketName
+        S3Key: 
+          Ref: ObjectKey
       FunctionName: MecabApi
       Handler: main.handler
       Role: !Sub 'arn:aws:iam::${AWS::AccountId}:role/lambda_basic_execution'

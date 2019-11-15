@@ -20,5 +20,5 @@ artifacts:
     - main.py
     - 'package/**/*'
     - 'mecab-service/**/*'
-  name: function.zip
+  name: function-$(date +%Y%m%d%H%M%S).zip
   discard-paths: no
