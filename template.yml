@@ -1,36 +1,227 @@
 AWSTemplateFormatVersion: 2010-09-09
-Transform: AWS::Serverless-2016-10-31
 Description: The AWS CloudFormation template for MecabApi Lambuda Function
 Parameters:
   BucketName:
     Type: String
   ObjectKey:
     Type: String
-  ApiId:
-    Type: String
 Resources:
+  Api:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: "TrasheScheduleAPI"
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+    DeletionPolicy: Retain
+  DataApi:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt Api.RootResourceId
+      PathPart: data
+      RestApiId: !Ref Api
+    DeletionPolicy: Retain
+  ParseApi:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt Api.RootResourceId
+      PathPart: parse
+      RestApiId: !Ref Api
+    DeletionPolicy: Retain
+  DataMethodPost:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref Api
+      ResourceId: !Ref DataApi
+      AuthorizationType: "None"
+      ApiKeyRequired: true
+      RequestValidatorId: !Ref BodyValidator
+      RequestModels: 
+        application/json: !Ref DataModel
+      HttpMethod: "POST"
+      Integration:
+        Type: "AWS_PROXY"
+        IntegrationHttpMethod: "POST"
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ThrowTrashApi/invocations"
+    DeletionPolicy: Retain
+  DataMethodPut:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref Api
+      ResourceId: !Ref DataApi
+      AuthorizationType: "None"
+      ApiKeyRequired: true
+      RequestValidatorId: !Ref QueryValidator
+      RequestModels: 
+        application/json: !Ref DataModel
+      HttpMethod: "PUT"
+      Integration:
+        Type: "AWS_PROXY"
+        IntegrationHttpMethod: "POST"
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ThrowTrashApi/invocations"
+    DeletionPolicy: Retain
+  DataMethodGet:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref Api
+      ResourceId: !Ref DataApi
+      AuthorizationType: "None"
+      ApiKeyRequired: true
+      RequestValidatorId: !Ref QueryValidator
+      RequestParameters:
+        "method.request.querystring.id": false
+        "method.request.querystring.lineid": false
+      HttpMethod: "GET"
+      Integration:
+        Type: "AWS_PROXY"
+        IntegrationHttpMethod: "POST"
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ThrowTrashApi/invocations"
+    DeletionPolicy: Retain
+  ParseMethodGet:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref Api
+      ResourceId: !Ref ParseApi
+      AuthorizationType: "None"
+      ApiKeyRequired: false
+      RequestValidatorId: !Ref QueryValidator
+      RequestParameters:
+        "method.request.querystring.text": true
+      HttpMethod: "GET"
+      Integration:
+        Type: "AWS_PROXY"
+        IntegrationHttpMethod: "POST"
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${MecabApiFunction}/invocations"
+    DependsOn: LambdaInvokePermission
+    DeletionPolicy: Retain
+  DataMethodDelete:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref Api
+      ResourceId: !Ref DataApi
+      AuthorizationType: "None"
+      ApiKeyRequired: true
+      RequestValidatorId: !Ref QueryValidator
+      RequestParameters:
+        "method.request.querystring.lineid": true
+      HttpMethod: "DELETE"
+      Integration:
+        Type: "AWS_PROXY"
+        IntegrationHttpMethod: "POST"
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ThrowTrashApi/invocations"
+    DeletionPolicy: Retain
+  QueryValidator:
+    Type: "AWS::ApiGateway::RequestValidator"
+    Properties:
+      RestApiId: !Ref Api
+      ValidateRequestParameters: True
+    DeletionPolicy: Retain
+  BodyValidator:
+    Type: "AWS::ApiGateway::RequestValidator"
+    Properties:
+      RestApiId: !Ref Api
+      ValidateRequestBody: True
+    DeletionPolicy: Retain
+  DataModel:
+    Type: "AWS::ApiGateway::Model"
+    Properties:
+      ContentType: "application/json"
+      RestApiId: !Ref Api
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        title: "Empty Scheme"
+        type: object
+    DeletionPolicy: Retain
+  ProductionDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    Properties:
+      RestApiId: !Ref Api
+      StageName: production
+    DependsOn: 
+      - DataMethodPost
+      - DataMethodGet
+      - DataMethodDelete
+      - DataMethodPut
+    DeletionPolicy: Retain
+  TestDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    Properties:
+      RestApiId: !Ref Api
+      StageName: test
+    DependsOn: 
+      - DataMethodPost
+      - DataMethodGet
+      - DataMethodDelete
+      - DataMethodPut
+      - ParseMethodGet
+    DeletionPolicy: Retain
+  ProductionStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref Api
+      DeploymentId: !Ref ProductionDeployment
+      MethodSettings:
+        - ResourcePath: /data
+          HttpMethod: POST
+        - ResourcePath: /data
+          HttpMethod: GET
+        - ResourcePath: /data
+          HttpMethod: PUT
+        - ResourcePath: /data
+          HttpMethod: DELETE
+    DeletionPolicy: Retain
+  TestStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref Api
+      DeploymentId: !Ref TestDeployment
+      MethodSettings:
+        - ResourcePath: /data
+          HttpMethod: POST
+        - ResourcePath: /data
+          HttpMethod: GET
+        - ResourcePath: /data
+          HttpMethod: PUT
+        - ResourcePath: /data
+          HttpMethod: DELETE
+        - ResourcePath: /parse
+          HttpMethod: GET
+    DeletionPolicy: Retain
+  LambdaExecuteRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      RoleName: "mecabapi-lambda-execute-role"
+    DeletionPolicy: Retain
   MecabApiFunction:
-    Type: 'AWS::Lambda::Function'
+    Type: "AWS::Lambda::Function"
     Properties:
       Code: 
-        S3Bucket: 
-          Ref: BucketName
-        S3Key: 
-          Ref: ObjectKey
+        S3Bucket: !Ref BucketName
+        S3Key: !Ref ObjectKey
       FunctionName: MecabApi
       Handler: main.handler
-      Role: !Sub 'arn:aws:iam::${AWS::AccountId}:role/lambda_basic_execution'
+      Role: !Ref LambdaExecuteRole
       Runtime: python3.7
       Timeout: 30
     DeletionPolicy: Retain
   LambdaInvokePermission:
-    Type: 'AWS::Lambda::Permission'
+    Type: "AWS::Lambda::Permission"
     Properties:
       FunctionName: !GetAtt
         - MecabApiFunction
         - Arn
-      Action: 'lambda:InvokeFunction'
-      Principal: 'apigateway.amazonaws.com'
+      Action: "lambda:InvokeFunction"
+      Principal: "apigateway.amazonaws.com"
       SourceArn:
-        !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*/GET/parse'
+        !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/GET/parse"
           
