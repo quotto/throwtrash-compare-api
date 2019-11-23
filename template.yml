@@ -28,6 +28,13 @@ Resources:
       PathPart: parse
       RestApiId: !Ref Api
     DeletionPolicy: Retain
+  CompareApi:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt Api.RootResourceId
+      PathPart: compare
+      RestApiId: !Ref Api
+    DeletionPolicy: Retain
   DataMethodPost:
     Type: "AWS::ApiGateway::Method"
     Properties:
@@ -110,6 +117,24 @@ Resources:
         IntegrationHttpMethod: "POST"
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ThrowTrashApi/invocations"
     DeletionPolicy: Retain
+  CompareMethodGet:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref Api
+      ResourceId: !Ref CompareApi
+      AuthorizationType: "None"
+      ApiKeyRequired: false
+      RequestValidatorId: !Ref QueryValidator
+      RequestParameters:
+        "method.request.querystring.text1": true
+        "method.request.querystring.text2": true
+      HttpMethod: "GET"
+      Integration:
+        Type: "AWS_PROXY"
+        IntegrationHttpMethod: "POST"
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${MecabApiFunction}/invocations"
+    DependsOn: LambdaInvokePermission
+    DeletionPolicy: Retain
   QueryValidator:
     Type: "AWS::ApiGateway::RequestValidator"
     Properties:
@@ -186,6 +211,8 @@ Resources:
           HttpMethod: DELETE
         - ResourcePath: /parse
           HttpMethod: GET
+        - ResourcePath: /compare
+          HttpMethod: GET
     DeletionPolicy: Retain
   LambdaExecuteRole:
     Type: "AWS::IAM::Role"
@@ -223,5 +250,5 @@ Resources:
       Action: "lambda:InvokeFunction"
       Principal: "apigateway.amazonaws.com"
       SourceArn:
-        !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/GET/parse"
+        !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/GET/*"
           
