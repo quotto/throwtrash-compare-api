@@ -199,8 +199,8 @@ Resources:
             Action: 
               - "sts:AssumeRole"
       ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-      RoleName: "mecabapi-lambda-execute-role"
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      RoleName: !Sub "mecabapi-lambda-execute-role-${AWS::Region}"
     DeletionPolicy: Retain
   MecabApiFunction:
     Type: "AWS::Lambda::Function"
@@ -210,7 +210,7 @@ Resources:
         S3Key: !Ref ObjectKey
       FunctionName: MecabApi
       Handler: main.handler
-      Role: !Ref LambdaExecuteRole
+      Role: !GetAtt LambdaExecuteRole.Arn
       Runtime: python3.7
       Timeout: 30
     DeletionPolicy: Retain
