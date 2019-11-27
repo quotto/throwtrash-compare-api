@@ -179,6 +179,7 @@ Resources:
       - DataMethodDelete
       - DataMethodPut
       - ParseMethodGet
+      - CompareMethodGet
     DeletionPolicy: Retain
   ProductionStage:
     Type: AWS::ApiGateway::Stage
