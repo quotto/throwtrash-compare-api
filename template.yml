@@ -115,7 +115,6 @@ Resources:
             - ""
             - - !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ThrowTrashApi"
               - ":${stageVariables.Alias}/invocations"
-    DependsOn: LambdaInvokePermission
     DeletionPolicy: Retain
   ParseMethodGet:
     Type: "AWS::ApiGateway::Method"
@@ -136,7 +135,6 @@ Resources:
             - ""
             - - !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${MecabApiFunction}"
               - ":${stageVariables.Alias}/invocations"
-    DependsOn: LambdaInvokePermission
     DeletionPolicy: Retain
   CompareMethodGet:
     Type: "AWS::ApiGateway::Method"
@@ -158,7 +156,6 @@ Resources:
             - ""
             - - !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${MecabApiFunction}"
               - ":${stageVariables.Alias}/invocations"
-    DependsOn: LambdaInvokePermission
     DeletionPolicy: Retain
   QueryValidator:
     Type: "AWS::ApiGateway::RequestValidator"
