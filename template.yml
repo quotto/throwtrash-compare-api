@@ -264,7 +264,7 @@ Resources:
       FunctionName: !Join
         - ""
         - - !GetAtt MecabApiFunction.Arn
-        - - ":development"
+          - ":development"
       Action: "lambda:InvokeFunction"
       Principal: "apigateway.amazonaws.com"
       SourceArn:
@@ -276,7 +276,7 @@ Resources:
       FunctionName: !Join
         - ""
         - - !GetAtt MecabApiFunction.Arn
-        - - ":production"
+          - ":production"
       Action: "lambda:InvokeFunction"
       Principal: "apigateway.amazonaws.com"
       SourceArn:
