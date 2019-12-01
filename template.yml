@@ -163,10 +163,7 @@ Resources:
       RestApiId: !Ref Api
       StageName: production
     DependsOn: 
-      - DataMethodPost
-      - DataMethodGet
-      - DataMethodDelete
-      - DataMethodPut
+      - CompareMethodGet
     DeletionPolicy: Retain
   TestDeployment:
     Type: "AWS::ApiGateway::Deployment"
@@ -187,14 +184,8 @@ Resources:
       RestApiId: !Ref Api
       DeploymentId: !Ref ProductionDeployment
       MethodSettings:
-        - ResourcePath: /data
-          HttpMethod: POST
-        - ResourcePath: /data
+        - ResourcePath: /compare
           HttpMethod: GET
-        - ResourcePath: /data
-          HttpMethod: PUT
-        - ResourcePath: /data
-          HttpMethod: DELETE
     DeletionPolicy: Retain
   TestStage:
     Type: AWS::ApiGateway::Stage
