@@ -5,4 +5,4 @@ build:
       target: runner
     web: Dockerfile
 run: 
-  web: pipenv run python app/app.py
+  web: gunicorn --bind=0.0.0.0:80 --timeout=120 app.app
