@@ -4,4 +4,4 @@ build:
       dockerfile: Dockerfile
       target: runner
     app: Dockerfile
-  run: pipenv run /project/app/app.py
+run: pipenv run /project/app/app.py
