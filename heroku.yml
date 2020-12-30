@@ -1,4 +1,4 @@
 build:
   docker:
-    app: Dockerfile
+    web: Dockerfile
 run: pipenv run /project/app/app.py
