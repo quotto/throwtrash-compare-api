@@ -5,4 +5,4 @@ build:
       target: runner
     web: Dockerfile
 run: 
-  web: pipenv run /project/app/app.py
+  web: pipenv run python app/app.py
