@@ -14,7 +14,7 @@ logger.setLevel(DEBUG)
 ch.terminator = ''
 logger.info("load word2vec models...")
 
-model = gensim.models.KeyedVectors.load_word2vec_format("{}/dataset/entity_vector/entity_vector.model.bin".format(os.path.dirname(__file__)),binary=True)
+model = gensim.models.word2vec.Word2Vec.load("{}/dataset/word2vec.gensim.model".format(os.path.dirname(__file__)))
 
 ch.terminator = '\n'
 logger.info("finish")

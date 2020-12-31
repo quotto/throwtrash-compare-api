@@ -5,14 +5,20 @@ from app.mecab_dict import is_Taigigo,is_negative,parse_from_standard_dict,parse
 from app.word2vec import get_vector,calculate_cosine_similarity,get_average_vector,calculate_word_similarity
 from app.main import compare_two_text
 import pandas as pd
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--outputfile",required=True)
+
+args = parser.parse_args()
 
 logger = getLogger(__name__)
 logger.setLevel(DEBUG)
-fh = FileHandler("/app/dataset/evaluate/99.csv",mode="w",encoding="utf-8")
+fh = FileHandler("./evaluate/{}".format(args.outputfile),mode="w",encoding="utf-8")
 fh.setLevel(INFO)
 logger.addHandler(fh)
 
-df_data = pd.read_csv("/app/dataset/testdata.csv")
+df_data = pd.read_csv("./testdata.csv")
 
 border_score = 0.6 #この数値以上なら一致、未満なら不一致
 
