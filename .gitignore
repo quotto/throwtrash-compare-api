@@ -4,3 +4,4 @@ user.dic
 .vscode
 .venv
 app/.ipynb_checkpoints
+app/dataset/word2vec.gensim.model*
