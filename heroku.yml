@@ -1,8 +1,0 @@
-build:
-  docker:
-    run:
-      dockerfile: Dockerfile
-      target: runner
-    web: Dockerfile
-run: 
-  web: gunicorn --timeout=120 app.app
