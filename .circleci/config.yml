@@ -20,7 +20,7 @@ jobs:
     - run:
         name: restart
         command: |
-          ssh ${SSH_USER}@${HOST_NAME} "cd ~/throwtrash-compare/deploy && chmod +x deploy.sh isChanged && ./deploy.sh"
+          ssh ${SSH_USER}@${HOST_NAME} "cd ~/throwtrash-compare/deploy && chmod +x deploy.sh && ./deploy.sh"
 workflows:
   version: 2
   release:
