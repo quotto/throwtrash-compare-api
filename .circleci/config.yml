@@ -11,6 +11,7 @@ jobs:
     - run:
         name: pull
         command: |
+          mkdir ~/.ssh/ && echo -e "Host ${HOST_NAME}\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
           ssh ${SSH_USER}@${HOST_NAME} "cd ~/throwtrash-compare && git pull"
     - run:
         name: download_trained_data
