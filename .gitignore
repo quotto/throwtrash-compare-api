@@ -5,3 +5,4 @@ user.dic
 .venv
 app/.ipynb_checkpoints
 app/dataset/word2vec.gensim.model*
+**/.terraform
