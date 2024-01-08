@@ -19,11 +19,14 @@ Amazon Linux2のAMIを使用しているためユーザー辞書の生成もそ�
 
 ### Pythonバージョン
 
-python3.7.4
+python3.11
 
-## ビルド・デプロイ手順
+## ビルド
 
-1. `pip install -r requirements.txt -t ./package`
-2. `./mecab-service/local/libexec/mecab-dict-index -d ./mecab-service/local/lib/mecab/dic/ipadic -u user.dic -f utf-8 -t utf-8 ./user.csv`
-3. `zip -r9 ./function.zip mecab-service main.py package`
-4. `aws lambda upload-function-code --function-name my-function --zip-file fileb://function.zip`
+### Dockerfile
+
+Dockerによるビルドを行う
+
+1. `app/dataset`にword2vecのモデルファイルを`word2vec.gensim.model`の名前で準備しておく。
+2. `docker build -f build/Dockerfile -t throwtrash-compare:prebuild .`
+3. `docker build -f Dockerfile .`

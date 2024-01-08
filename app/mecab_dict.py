@@ -1,7 +1,7 @@
+from logging import getLogger,DEBUG,StreamHandler
+import os
 import MeCab
 import pandas as pd
-from logging import getLogger,INFO,DEBUG,StreamHandler
-import os
 
 logger = getLogger(__name__)
 logger.setLevel(DEBUG)
@@ -11,7 +11,7 @@ logger.addHandler(ch)
 
 ch.terminator = ''
 logger.info("load user dict...")
-customDict = MeCab.Tagger('-O chasen -u {}/dataset/user.dic'.format(os.path.dirname(__file__)))
+customDict = MeCab.Tagger(f"-O chasen -u {os.path.dirname(__file__)}/dataset/user.dic")
 ch.terminator = '\n'
 logger.info("finish")
 
@@ -21,16 +21,9 @@ standardDict = MeCab.Tagger('-O chasen')
 ch.terminator = '\n'
 logger.info("finish")
 
-
 ch.terminator = ''
 logger.info("load taigigo list...")
-df_taigigo_tmp = pd.read_csv("{}/dataset/taigigo.csv".format(os.path.dirname(__file__)))
-df_taigigo = pd.read_csv("{}/dataset/taigigo.csv".format(os.path.dirname(__file__)))
-for index,rows in df_taigigo_tmp.iterrows():
-    series = pd.Series([rows[1],rows[0]],index=df_taigigo.columns)
-    df_taigigo = df_taigigo.append(series,ignore_index=True)
-
-df_taigigo = df_taigigo.reset_index(drop=True)
+df_taigigo = pd.read_csv(f"{os.path.dirname(__file__)}/dataset/taigigo.csv")
 ch.terminator = '\n'
 logger.info("finish")
 
@@ -38,7 +31,7 @@ logger.info("finish")
 def is_Taigigo(word1,word2):
     s_taigigo = df_taigigo[df_taigigo['org'] == word1]
     result = len(s_taigigo) > 0 and s_taigigo['rev'].iat[0] == word2
-    logger.debug('{0}⇔{1}は対義語？->{2}'.format(word1,word2,result))
+    logger.debug("%s⇔%sは対義語？->%s", word1, word2, result)
     return result
 
 
@@ -58,17 +51,17 @@ def is_negative(chasen):
 
     # 品詞ごとにネガティブ判定する
     # 否定の否定があれば肯定とみなす
-    if(word_type[0] == '名詞'):
+    if word_type[0] == '名詞':
         if(word[0][0] in ('非','不','無','未','反','異') or word[0] == '無い'):
-            logger.debug('{0} is negative'.format(word[0]))
+            logger.debug("%s is negative", word[0])
             result = True
-    elif(word_type[0] == '助動詞'):
-        if(word[0] in ('ない','ぬ','ん','ず','ナイ','ヌ','ン','ズ')):
-            logger.debug('{0} is negative'.format(word[0]))
+    elif word_type[0] == '助動詞':
+        if word[0] in ('ない','ぬ','ん','ず','ナイ','ヌ','ン','ズ'):
+            logger.debug("%s is negative", word[0])
             result = True
-    elif(word_type[0] == '形容詞'):
-        if(word[0] in ('無い','ない')):
-            logger.debug('{0} is negative'.format(word[0]))
+    elif word_type[0] == '形容詞':
+        if word[0] in ('無い','ない'):
+            logger.debug("%s is negative", word[0])
             result = True
     return result
 
@@ -113,7 +106,7 @@ def reparse_text(parse_list):
     tmp_reading_list = []
     result = []
     for parse_text in parse_list:
-        if(parse_text['type'] == '名詞'):
+        if parse_text['type'] == '名詞':
             result.append({
                 'word': ''.join(tmp_word_list) + parse_text['word'],
                 'reading': ''.join(tmp_reading_list) + parse_text['reading'],

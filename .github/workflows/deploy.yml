@@ -1,0 +1,104 @@
+name: Deploy Docker Image and Update Lambda Function
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: ap-northeast-1
+      ECR_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com
+      IMAGE_TAG: ${{ github.ref_name == 'release' &&  github.sha || 'dev' }}
+      STAGE: ${{ github.ref_name == 'release' && 'prod' || 'dev' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@v3
+        id: aws_assume_role
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: thrwotrash-compare-deploy-session
+          aws-region: ap-northeast-1
+
+      - name: Python Setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Cache node modules
+        env:
+          cache-name: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: app/dataset/word2vec.gensim.model.tar.bz2
+          key: ${{ hashFiles('app/dataset/word2vec.gensim.model.tar.bz2') }}
+
+      - name: Download word2vec model file
+        run: |
+          aws s3 cp s3://throwtrash-compare/20210101/word2vec.gensim.model.tar.bz2 app/dataset
+
+      - name: Pre build
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          tags: throwtrash/compare:prebuild
+          context: .
+          file: build/Dockerfile
+          build-args: |
+            "platform=linux/amd64"
+
+      - name: Test build
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          tags: throwtrash/compare:test
+          context: .
+          file: ./tests/Dockerfile
+
+      - name: Unit Test
+        run: |
+          docker run --rm throwtrash/compare:test python -m unittest discover -s tests -p "*_test.py"
+
+      - name: Login to ECR
+        run:
+          aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URI }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ env.ECR_URI }}/throwtrash/compare:${{ env.IMAGE_TAG }}
+          build-args: |
+            "platform=linux/amd64"
+
+      - name: Update Lambda Function
+        run: |
+          aws lambda update-function-code --function-name throwtrash-compare --image-uri ${{ env.ECR_URI }}/throwtrash/compare:${{ env.IMAGE_TAG }}
+
+          current_version=$(aws lambda get-alias --function-name throwtrash-compare --name ${{ env.STAGE }} | jq -r '.FunctionVersion')
+          
+          # LambdaのLastUpdateStatusがSuccessfulになるまで待機する
+          while :
+          do
+            status=$(aws lambda get-function --function-name throwtrash-compare | jq -r '.Configuration.LastUpdateStatus')
+            if [ $status == "Successful" ]; then
+              break
+            fi
+            sleep 5
+          done
+          new_version=$(aws lambda publish-version --function-name throwtrash-compare | jq -r '.Version')
+
+          aws lambda update-alias --function-name throwtrash-compare --name ${{ env.STAGE }} --function-version "${new_version}"
+
+          # 開発ビルドの場合は古いバージョンを削除する
+          if [ ${{ env.STAGE }} == "dev" ]; then
+            aws lambda delete-function --function-name throwtrash-compare --qualifier "${current_version}"
+          fi

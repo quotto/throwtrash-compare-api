@@ -1,5 +1,5 @@
 from functools import lru_cache
-from logging import getLogger,INFO,DEBUG,StreamHandler
+from logging import getLogger,DEBUG,StreamHandler
 logger = getLogger(__name__)
 ch = StreamHandler()
 ch.setLevel(DEBUG)

@@ -3,7 +3,7 @@ import numpy as np
 from logging import getLogger,INFO,DEBUG,FileHandler
 from app.mecab_dict import is_Taigigo,is_negative,parse_from_standard_dict,parse_to_noun_from_custom_dict,reparse_text
 from app.word2vec import get_vector,calculate_cosine_similarity,get_average_vector,calculate_word_similarity
-from app.main import compare_two_text
+from app.compare_service import compare_two_text
 import pandas as pd
 import argparse
 

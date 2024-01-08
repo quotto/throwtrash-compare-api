@@ -1,9 +1,8 @@
-import gensim
-import sys
-import numpy as np
-from scipy import spatial
 from logging import getLogger, DEBUG, StreamHandler
+from scipy import spatial
 import os
+import gensim
+import numpy as np
 
 logger = getLogger(__name__)
 ch = StreamHandler()
@@ -14,7 +13,9 @@ logger.setLevel(DEBUG)
 ch.terminator = ''
 logger.info("load word2vec models...")
 
-model = gensim.models.word2vec.Word2Vec.load("{}/dataset/word2vec.gensim.model".format(os.path.dirname(__file__)))
+model = gensim.models.word2vec.Word2Vec.load(
+    f"{os.path.dirname(__file__)}/dataset/word2vec.gensim.model"
+    )
 
 ch.terminator = '\n'
 logger.info("finish")
@@ -22,7 +23,7 @@ def get_vector(word):
     try:
         vector = model.wv[word]
         return vector
-    except KeyError as err:
+    except KeyError as _:
         print("key:"+word+"is not found")
         return np.array([])
 
@@ -38,8 +39,8 @@ def get_average_vector(vector_list):
 
 def calculate_word_similarity(word1,word2):
     try:
-        similarity = model.similarity(word1,word2)
+        similarity = model.wv.similarity(word1,word2)
         return similarity
     except KeyError as err:
-       print(err) 
-       return 0
+        print(err)
+        return 0
