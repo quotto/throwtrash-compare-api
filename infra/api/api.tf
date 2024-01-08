@@ -10,6 +10,7 @@ resource "aws_api_gateway_rest_api" "api" {
     endpoint_configuration {
         types = ["REGIONAL"]
     }
+
     tags = {
         app = "throwtrash"
         group = "compare"
@@ -43,6 +44,7 @@ resource "aws_api_gateway_stage" "api-stage-prod" {
     variables = {
       "stageName" = "prod"
     }
+
     tags = {
         app = "throwtrash"
         group = "compare"
@@ -88,6 +90,9 @@ resource "aws_api_gateway_deployment" "api-deployment-dev" {
             aws_api_gateway_resource.api-resource.id
         ]))
     }
+    lifecycle {
+      create_before_destroy = true
+    }
 }
 
 resource "aws_api_gateway_deployment" "api-deployment-prod" {
@@ -99,6 +104,9 @@ resource "aws_api_gateway_deployment" "api-deployment-prod" {
             aws_api_gateway_method.api-method-post.id,
             aws_api_gateway_resource.api-resource.id
         ]))
+    }
+    lifecycle {
+      create_before_destroy = true
     }
 }
 
