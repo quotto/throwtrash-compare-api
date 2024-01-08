@@ -7,7 +7,6 @@
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		// "ghcr.io/devcontainers/features/git:1": "1.1.6"
 	},
 	"containerEnv": {
 		"MECABRC": "/etc/mecabrc"
@@ -28,7 +27,9 @@
 				"ms-toolsai.jupyter",
 				"ms-azuretools.vscode-docker",
 				"donjayamanne.python-extension-pack",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"hashicorp.terraform",
+				"github.copilot"
 			]
 		}
 	}
