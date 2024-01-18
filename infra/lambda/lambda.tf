@@ -77,7 +77,7 @@ resource "aws_iam_policy" "throwtrash-compare-lambda-policy" {
             "Action": "logs:CreateLogGroup",
             "Resource": "arn:aws:logs:ap-northeast-1:${data.aws_caller_identity.current.account_id}:*"
         },
-        
+
             "Effect": "Allow",
             "Action": [
                 "logs:CreateLogStream",
@@ -133,6 +133,14 @@ resource aws_lambda_permission "throwtrash-compare-prod" {
     principal = "apigateway.amazonaws.com"
     qualifier = aws_lambda_alias.lambda-alias-prod.name
     source_arn = "${var.api_gateway_execution_arn}/${var.stage_prod_name}/POST${var.api_resource_path}"
+}
+
+resource aws_lambda_permission "throwtrash-compare-eventbridge-prod" {
+    action = "lambda:InvokeFunction"
+    function_name = aws_lambda_function.throwtrash-compare.function_name
+    principal = "events.amazonaws.com"
+    qualifier = aws_lambda_alias.lambda-alias-prod.name
+    source_arn = aws_cloudwatch_event_rule.eventbridge.arn
 }
 
 output "function_name" {
