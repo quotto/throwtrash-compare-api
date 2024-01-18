@@ -77,7 +77,7 @@ resource "aws_iam_policy" "throwtrash-compare-lambda-policy" {
             "Action": "logs:CreateLogGroup",
             "Resource": "arn:aws:logs:ap-northeast-1:${data.aws_caller_identity.current.account_id}:*"
         },
-
+        {
             "Effect": "Allow",
             "Action": [
                 "logs:CreateLogStream",

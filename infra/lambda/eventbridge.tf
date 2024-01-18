@@ -1,7 +1,7 @@
 // 1時間に1回Lambdaを実行するためのEventBridgeを作成する
 
 variable "tags" {
-  type = "map"
+  type = map(string)
   default = {
     "app" = "throwtrash"
     "group" = "compare"
@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "eventbridge" {
     sid       = "AllowLambdaInvoke"
     effect    = "Allow"
     actions   = ["lambda:InvokeFunction"]
-    resources = [aws_lambda_alias.lambda-alias-prod.invoke_arn]
+    resources = [aws_lambda_alias.lambda-alias-prod.arn]
   }
 }
 
@@ -46,7 +46,7 @@ resource "aws_iam_policy" "eventbridge-policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "eventbridge-policy-attachment" {
-  role       = aws_iam_role.eventbridge-role.arn
+  role       = aws_iam_role.eventbridge-role.name
   policy_arn = aws_iam_policy.eventbridge-policy.arn
 }
 
@@ -60,10 +60,10 @@ resource "aws_cloudwatch_event_rule" "eventbridge" {
 resource "aws_cloudwatch_event_target" "eventbridge-target" {
   rule      = aws_cloudwatch_event_rule.eventbridge.name
   target_id = "throwtrash-compare"
-  arn       = aws_lambda_alias.lambda-alias-prod.invoke_arn
+  arn       = aws_lambda_alias.lambda-alias-prod.arn
   input    = <<EOF
 {
-  "word": "ゴミ"
+  "target": "ゴミ",
   "comparisons": [ "ゴミ" ]
 }
 EOF
